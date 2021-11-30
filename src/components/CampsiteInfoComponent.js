@@ -1,9 +1,24 @@
-import React from "react";
-import { Card, CardImg, CardTitle, CardBody, CardText, Breadcrumb, BreadcrumbItem } from "reactstrap";
-import { Link } from 'react-router-dom';
+import React, { Component } from "react";
+import {
+  Card,
+  CardImg,
+  CardBody,
+  CardText,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Label,
+} from "reactstrap";
+import { Link } from "react-router-dom";
+import { Control, LocalForm, Errors } from "react-redux-form";
 
+const maxLength = (len) => (val) => !val || val.length <= len;
+const minLength = (len) => (val) => val && val.length >= len;
 //rce for create react class component
-function RenderComments({comments}) {
+function RenderComments({ comments }) {
   if (comments) {
     return (
       <div className="col-md-5 m-1">
@@ -11,15 +26,23 @@ function RenderComments({comments}) {
         {comments.map((comment) => (
           <div className="mb-2">
             <div>{comment.text}</div>
-            <div>--{comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}</div>
+            <div>
+              --{comment.author},{" "}
+              {new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              }).format(new Date(Date.parse(comment.date)))}
+            </div>
           </div>
         ))}
+        <CommentForm />
       </div>
     );
   }
 }
 
-function RenderCampsite({campsite}) {
+function RenderCampsite({ campsite }) {
   return (
     <div className="col-md-5 m-1">
       <Card>
@@ -32,30 +55,120 @@ function RenderCampsite({campsite}) {
   );
 }
 
-function CampsiteInfo({campsite, comments}) {
-    console.log(campsite);
-    if (campsite) {
-      return (
-        <div className="container">
-          <div className="row">
-              <div className="col">
-                  <Breadcrumb>
-                      <BreadcrumbItem><Link to="/directory">Directory</Link></BreadcrumbItem>
-                      <BreadcrumbItem active>{campsite.name}</BreadcrumbItem>
-                  </Breadcrumb>
-                  <h2>{campsite.name}</h2>
-                  <hr />
+class CommentForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalOpen: false,
+    };
+  }
+
+  toggleModal = () => {
+    this.setState({
+      isModalOpen: !this.state.isModalOpen,
+    });
+  };
+
+  handleSubmit = (values) => {
+    console.log("Current state is: " + JSON.stringify(values));
+    alert("Current state is: " + JSON.stringify(values));
+  };
+
+  render() {
+    return (
+      <div>
+        <Button outline onClick={this.toggleModal}>
+          <i className="fa fa-pencil fa-lg" /> Submit Comment
+        </Button>
+        <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+          <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+          <ModalBody>
+            <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
+              <div className="form-group">
+                <Label htmlFor="rating">Rating</Label>
+                <Control.select
+                  model=".rating"
+                  name="rating"
+                  id="rating"
+                  className="form-control"
+                >
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                </Control.select>
               </div>
-          </div>
-          <div className="row">
-            <RenderCampsite campsite={campsite}/>
-            <RenderComments comments={comments}/>
+              <div className="form-group">
+                <Label htmlFor="author">Your Name</Label>
+                <Control.text
+                  model=".author"
+                  id="author"
+                  name="author"
+                  placeholder="Your Name"
+                  className="form-control"
+                  validators={{
+                    minLength: minLength(2),
+                    maxLength: maxLength(15),
+                  }}
+                />
+                <Errors
+                  className="text-danger"
+                  model=".author"
+                  show="touched"
+                  component="div"
+                  messages={{
+                    minLength: "Must be at least 2 characters",
+                    maxLength: "Must be 15 characters or less",
+                  }}
+                />
+              </div>
+              <div className="form-group">
+                <Label htmlFor="comment">Comment</Label>
+                <Control.textarea
+                  model=".comment"
+                  id="comment"
+                  name="comment"
+                  rows="6"
+                  className="form-control"
+                />
+              </div>
+              <Button type="submit" color="primary">
+                Submit
+              </Button>
+            </LocalForm>
+          </ModalBody>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+function CampsiteInfo({ campsite, comments }) {
+  console.log(campsite);
+  if (campsite) {
+    return (
+      <div className="container">
+        <div className="row">
+          <div className="col">
+            <Breadcrumb>
+              <BreadcrumbItem>
+                <Link to="/directory">Directory</Link>
+              </BreadcrumbItem>
+              <BreadcrumbItem active>{campsite.name}</BreadcrumbItem>
+            </Breadcrumb>
+            <h2>{campsite.name}</h2>
+            <hr />
           </div>
         </div>
-      );
-    }
-    return <div></div>;
-  
+        <div className="row">
+          <RenderCampsite campsite={campsite} />
+          <RenderComments comments={comments} />
+        </div>
+      </div>
+    );
+  }
+  return <div></div>;
 }
 
 export default CampsiteInfo;
