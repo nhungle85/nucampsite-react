@@ -7,6 +7,7 @@ import { Redirect, Route, Switch, withRouter } from "react-router";
 import Contact from "./ContactComponent";
 import CampsiteInfo from "./CampsiteInfoComponent"
 import { connect } from 'react-redux';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import About from "./AboutComponent";
 
@@ -43,14 +44,18 @@ export class Main extends Component {
       return (
         <div className="Main">
           <Header />
-          <Switch>
-            <Route path="/home" component={HomePage} />
-            <Route exact path="/directory" render={() => <Directory campsites={this.props.campsites} />} />
-            <Route path='/directory/:campsiteId' component={CampsiteWithId} />
-            <Route exact path="/contactus" component={Contact} />
-            <Route exact path="/aboutus" render={() => <About partners={this.props.partners} />} />
-            <Redirect to="/home" />
-          </Switch>
+          <TransitionGroup>
+            <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
+              <Switch>
+                <Route path="/home" component={HomePage} />
+                <Route exact path="/directory" render={() => <Directory campsites={this.props.campsites} />} />
+                <Route path='/directory/:campsiteId' component={CampsiteWithId} />
+                <Route exact path="/contactus" component={Contact} />
+                <Route exact path="/aboutus" render={() => <About partners={this.props.partners} />} />
+                <Redirect to="/home" />
+              </Switch>
+              </CSSTransition>
+          </TransitionGroup>
           <Footer />
         </div>
       );
