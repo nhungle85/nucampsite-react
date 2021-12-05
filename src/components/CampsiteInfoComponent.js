@@ -19,7 +19,7 @@ import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 const maxLength = (len) => (val) => !val || val.length <= len;
 const minLength = (len) => (val) => val && val.length >= len;
 //rce for create react class component
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, campsiteId }) {
   if (comments) {
     return (
       <div className="col-md-5 m-1">
@@ -41,7 +41,7 @@ function RenderComments({ comments }) {
                 </Fade>
             ))}
         </Stagger>
-        <CommentForm />
+        <CommentForm addComment={addComment} campsiteId={campsiteId}/>
       </div>
     );
   }
@@ -81,8 +81,9 @@ class CommentForm extends Component {
   };
 
   handleSubmit = (values) => {
-    console.log("Current state is: " + JSON.stringify(values));
-    alert("Current state is: " + JSON.stringify(values));
+    this.toggleModal();
+    this.props.addComment(this.props.campsiteId, values.rating, values.author, values.comment);
+    
   };
 
   render() {
@@ -155,7 +156,7 @@ class CommentForm extends Component {
   }
 }
 
-function CampsiteInfo({ campsite, comments }) {
+function CampsiteInfo({ campsite, comments, addComment }) {
   console.log(campsite);
   if (campsite) {
     return (
@@ -174,7 +175,11 @@ function CampsiteInfo({ campsite, comments }) {
         </div>
         <div className="row">
           <RenderCampsite campsite={campsite} />
-          <RenderComments comments={comments} />
+          <RenderComments 
+              comments={comments}
+              addComment={addComment}
+              campsiteId={campsite.id}
+           />
         </div>
       </div>
     );
