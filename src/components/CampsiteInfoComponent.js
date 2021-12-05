@@ -14,6 +14,7 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import { Control, LocalForm, Errors } from "react-redux-form";
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 
 const maxLength = (len) => (val) => !val || val.length <= len;
 const minLength = (len) => (val) => val && val.length >= len;
@@ -23,19 +24,23 @@ function RenderComments({ comments }) {
     return (
       <div className="col-md-5 m-1">
         <h4>Comments</h4>
-        {comments.map((comment) => (
-          <div className="mb-2">
-            <div>{comment.text}</div>
-            <div>
-              --{comment.author},{" "}
-              {new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-              }).format(new Date(Date.parse(comment.date)))}
-            </div>
-          </div>
-        ))}
+        <Stagger in>
+            {comments.map((comment) => (
+              <Fade in key={comment.id}>
+                  <div className="mb-2">
+                    <div>{comment.text}</div>
+                    <div>
+                      --{comment.author},{" "}
+                      {new Intl.DateTimeFormat("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                      }).format(new Date(Date.parse(comment.date)))}
+                    </div>
+                  </div>
+                </Fade>
+            ))}
+        </Stagger>
         <CommentForm />
       </div>
     );
@@ -45,12 +50,18 @@ function RenderComments({ comments }) {
 function RenderCampsite({ campsite }) {
   return (
     <div className="col-md-5 m-1">
-      <Card>
-        <CardImg top src={campsite.image} alt={campsite.name} />
-        <CardBody>
-          <CardText>{campsite.description}</CardText>
-        </CardBody>
-      </Card>
+      <FadeTransform
+                in
+                transformProps={{
+                    exitTransform: 'scale(0.5) translateY(-50%)'
+                }}>
+          <Card>
+            <CardImg top src={campsite.image} alt={campsite.name} />
+            <CardBody>
+              <CardText>{campsite.description}</CardText>
+            </CardBody>
+          </Card>
+        </FadeTransform>
     </div>
   );
 }
